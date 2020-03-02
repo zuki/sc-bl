@@ -9,7 +9,7 @@
 
 all: riscv hex
 
-PLATFORM ?= arty_scr1
+PLATFORM ?= max1000_scr1
 
 apps = scbl
 
@@ -20,7 +20,7 @@ FLAGS_MABI ?= ilp32
 
 PLATFORM_HDR=plf_$(PLATFORM).h
 
-CROSS_PATH ?=/opt/riscv/bin
+CROSS_PATH ?=/usr/local/opt/riscv-gnu-toolchain/bin
 CROSS_COMPILE ?= $(CROSS_PATH)$(if $(CROSS_PATH),/)riscv64-unknown-elf-
 
 CC = $(CROSS_COMPILE)gcc

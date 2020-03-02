@@ -11,12 +11,12 @@ OUTPUT_ARCH( "riscv" )
 ENTRY(_start)
 
 MEMORY {
-  RAM (rwx) : ORIGIN = 0-64K, LENGTH = 64K
+  RAM (rwx) : ORIGIN = 0-32K, LENGTH = 32K
 }
 
 SEC_ALIGN = 32;
 
-STACK_SIZE = 52K;
+STACK_SIZE = 20K;
 
 SECTIONS {
 
