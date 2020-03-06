@@ -7,7 +7,7 @@
 
 .PHONY: all riscv clean hex
 
-all: riscv hex
+all: riscv mif
 
 PLATFORM ?= max1000_scr1
 
@@ -15,13 +15,13 @@ apps = scbl
 
 ld-script?=scbl.ld
 
-FLAGS_MARCH ?= rv32im
+FLAGS_MARCH ?= rv32i
 FLAGS_MABI ?= ilp32
 
 PLATFORM_HDR=plf_$(PLATFORM).h
 
-CROSS_PATH ?=/usr/local/opt/riscv-gnu-toolchain/bin
-CROSS_COMPILE ?= $(CROSS_PATH)$(if $(CROSS_PATH),/)riscv64-unknown-elf-
+CROSS_PATH ?=/usr/local/riscv32im/bin
+CROSS_COMPILE ?= $(CROSS_PATH)$(if $(CROSS_PATH),/)riscv32-unknown-elf-
 
 CC = $(CROSS_COMPILE)gcc
 CFLAGS = -Wa,-march=$(FLAGS_MARCH) -march=$(FLAGS_MARCH) -mabi=${FLAGS_MABI} -mstrict-align -std=gnu99 $(INCLUDE_DIRS) $(C_OPT_FLAGS) -Wall -Werror
@@ -57,6 +57,7 @@ test_objs = $(patsubst %, $(build_dir)/%.o, $(basename $(apps)))
 
 apps_elf = $(patsubst %, $(build_dir)/%.elf, $(basename $(apps)))
 apps_hex = $(patsubst %, $(build_dir)/%.hex, $(basename $(apps)))
+apps_mif = $(patsubst %, $(build_dir)/%.mif, $(basename $(apps)))
 
 $(apps_elf): $(build_dir)/%.elf: $(build_dir)/%.o $(app_objs)
 	@echo "LD\t$@"
@@ -93,9 +94,15 @@ $(apps_hex): $(build_dir)/%.hex: $(build_dir)/%.elf
 	echo "@00000000" > $(@:.hex=.mem) && hexdump -v -e '4/1 "%02x" "\n"' $(@:.hex=.bin) >> $(@:.hex=.mem)
 	./mk_altera_hex.sh $(@:.hex=.bin) $@
 
+$(apps_mif): $(build_dir)/%.mif: $(build_dir)/%.bin
+	hexdump -v -e '1/4 "%08x" "\n"' $(@:.mif=.bin) > $(@:.mif=.hex)
+	(cd $(build_dir) && ../bin2mif -4 $(basename $(apps)))
+
 riscv: $(apps_elf)
 
 hex: $(apps_hex)
+
+mif: $(apps_mif)
 
 $(build_dir):
 	mkdir -p $(build_dir)

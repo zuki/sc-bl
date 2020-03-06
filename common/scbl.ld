@@ -12,6 +12,7 @@ ENTRY(_start)
 
 MEMORY {
   RAM (rwx) : ORIGIN = 0-32K, LENGTH = 32K
+  SDRAM (rxw) : ORIGIN = 0, LENGTH = 8M
 }
 
 SEC_ALIGN = 32;
