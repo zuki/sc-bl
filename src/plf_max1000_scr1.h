@@ -17,6 +17,8 @@
 #define PLF_SYS_FREQ     20000000
 // cpu clk freq
 #define PLF_CPU_FREQ     PLF_SYS_FREQ
+// uart boudrate (bps)
+#define PLF_UART_BAUDRATE 115200
 
 //----------------------
 // memory configuration

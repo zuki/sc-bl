@@ -11,37 +11,16 @@
 enum Uart_consts {
     UART_CLK_FREQ = PLF_SYS_FREQ,
     UART_BAUD_RATE = PLF_UART_BAUDRATE,
-#ifdef PLF_UART0_16550
-    UART_115200_CLK_DIVISOR = (UART_CLK_FREQ / UART_BAUD_RATE + 7) / 16,
-#elif defined(PLF_UART0_SCR_RTL)
-#else // PLF_UART0_16550
-    UART_115200_CLK_DIVISOR = UART_CLK_FREQ / UART_BAUD_RATE,
-#endif // PLF_UART0_16550
+    UART_CLK_DIVISOR = UART_CLK_FREQ / UART_BAUD_RATE,
 };
 
 // uart init
 void sc1f_uart_init(void)
 {
-#ifdef PLF_UART0_16550
     // disable interrupts
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_IER, 0);
-    // init MCR
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_MCR, 0);
-    // setup baud rate
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_CONTROL, SC1F_UART_LCR_INIT | SC1F_UART_LCR_DIVL);
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_DIV_LO, UART_115200_CLK_DIVISOR & 0xff);
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_DIV_HI, (UART_115200_CLK_DIVISOR >> 8) & 0xff);
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_CONTROL, SC1F_UART_LCR_INIT);
-    // init FIFO
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_FCR, SC1F_UART_FCR_R_RST | SC1F_UART_FCR_T_RST);
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_FCR, SC1F_UART_FCR_INIT & ~SC1F_UART_FCR_RMASK);
-    if (SC1F_UART_FCR_INIT & SC1F_UART_FCR_EN)
-        sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_FCR, SC1F_UART_FCR_INIT);
-#elif defined(PLF_UART0_SCR_RTL)
-#else // PLF_UART0_16550
-    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_BRATE, UART_115200_CLK_DIVISOR);
     sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_CONTROL, 0);
-#endif // PLF_UART0_16550
+    // setup baud rate
+    sc1f_uart_write(SC1F_UART0_PORT, SC1F_UART_DIV, UART_CLK_DIVISOR & 0xffff);
 }
 
 void uart_print_info(void)
@@ -54,11 +33,7 @@ void uart_print_info(void)
 #else
     uart_puts("\t ");
 #endif // PLF_UART0_IRQ
-#ifdef PLF_UART0_16550
-    uart_puts("\tUART16550");
-#else
     uart_puts("\tUART");
-#endif // PLF_UART0_16550
     uart_putc('\n');
 #endif // PLF_UART0_BASE
 }
